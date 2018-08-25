@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/grzegorzsurma/Repositories/private/Slitherin/tf_models/dnn_genetic_evolution/model.tf"
+all_model_checkpoint_paths: "/Users/grzegorzsurma/Repositories/private/Slitherin/tf_models/dnn_genetic_evolution/model.tf"
