@@ -1,6 +1,7 @@
 import csv
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from collections import OrderedDict
 from game.helpers.node import Node
 from game.environment.action import Action
@@ -34,6 +35,7 @@ class BaseGameModel:
         with scores_file:
             writer = csv.writer(scores_file)
             writer.writerow([score])
+        self._save_png(path, "runs", "scores")
 
     def stats(self):
         path = "scores/" + self.short_name + ".csv"
@@ -53,6 +55,31 @@ class BaseGameModel:
 
     def reset(self):
         pass
+
+    def _save_png(self, input_path, x_label, y_label):
+        x = []
+        y = []
+        with open(input_path, "r") as scores:
+            reader = csv.reader(scores)
+            data = list(reader)
+            for i in range(0, len(data)):
+                x.append(int(i))
+                y.append(int(data[i][0]))
+
+        plt.subplots()
+        plt.plot(x, y, label="score per run")
+
+        average_range = len(x)
+        plt.plot(x[-average_range:], [np.mean(y[-average_range:])] * len(y[-average_range:]), linestyle="--", label="average")
+
+        plt.title(self.short_name)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+
+        plt.legend(loc="upper left")
+        plt.savefig("scores/" + self.short_name + ".png", bbox_inches="tight")
+        plt.close()
+
 
     def _predict(self, environment, model):
         predictions = []

@@ -41,6 +41,7 @@ Table of Contents
 
 ## Modes
 All mode previews contain <span style="color:green">current score</span> **Mode Name (min/avg/max)**.
+All modes are benchmarked on a 12x12 grid.
 
 ### Domain specific
 > Algorithms are using domain specific data like snake's position, direction, neighbors etc.
@@ -50,6 +51,7 @@ All mode previews contain <span style="color:green">current score</span> **Mode 
 `python slitherin.py --shortest_path_bfs`
 
 <img src="assets/gifs/shortest_path_bfs.gif" width="200">
+<img src="scores/shortest_path_bfs.png" width="200">
 
 Generates the shortest path from the snake’s head to the fruit using BFS algorithm.
 
@@ -61,6 +63,7 @@ Optimal performance during early stages, but as the snake grows, its body create
 `python slitherin.py --shortest_path_dfs`
 
 <img src="assets/gifs/shortest_path_dfs.gif" width="200">
+<img src="scores/shortest_path_dfs.png" width="200">
 
 Generates the shortest path from the snake’s head to the fruit using DFS algorithm.
 
@@ -72,6 +75,7 @@ Performs worse than BFS due to the graph’s cyclicity.
 `python slitherin.py --longest_path`
 
 <img src="assets/gifs/longest_path.gif" width="200">
+<img src="scores/longest_path.png" width="200">
 
 Firstly, generates the shortest path (BFS) between the snake’s head and the fruit. Then for each pair of points in the path, tries to extend the distance between them with available actions.
 
@@ -83,6 +87,7 @@ Snake dies when its body is on a generated path.
 `python slitherin.py --hamilton`
 
 <img src="assets/gifs/hamilton.gif" width="200">
+<img src="scores/hamilton.png" width="200">
 
 Generates a longest path between the snake’s head and its tail. 
 
@@ -103,6 +108,7 @@ In the vast majority of the cases, such path covers the whole environment creati
 `python slitherin.py --deep_neural_net_trainer`
 
 <img src="assets/gifs/dnn.gif" width="200">
+<img src="scores/deep_neural_net.png" width="200">
 
 Training phase consists of performing random gameplays followed by the evaluation and backpropagation of performed actions and its results. 
 
@@ -121,6 +127,7 @@ As expected, DNN solver performs well in the early stages. Snake goes straight t
 `python slitherin.py --deep_neural_net_monte_carlo`
 
 <img src="assets/gifs/dnn_monte_carlo.gif" width="200">
+<img src="scores/deep_neural_net_monte_carlo.png" width="200">
 
 For each possible action, there is a DNN-driven gameplay generated. Gameplay with the highest score is chosen for an ultimate move.
 
@@ -144,6 +151,8 @@ Used for debug, development and fun:).
 `python slitherin.py --random`
 
 <img src="assets/gifs/random.gif" width="200">
+<img src="scores/random.png" width="200">
+
 
 It's always good to start benchmarking against randomness (at least pseudo).
 
@@ -155,6 +164,7 @@ As expected, very low performance.
 `python slitherin.py --monte_carlo`
 
 <img src="assets/gifs/monte_carlo.gif" width="200">
+<img src="scores/monte_carlo.png" width="200">
 
 For each move, performs a set of 1000 random run simulations. Then groups them by the initial action and finally picks the action that started gameplays with the highest average score.
 
@@ -168,6 +178,7 @@ Slow and weak performance.
 `python slitherin.py --deep_neural_net_genetic_evolution_trainer`
 
 <img src="assets/gifs/dnn_genetic_evolution.gif" width="200">
+<img src="scores/deep_neural_net_genetic_evolution.png" width="200">
 
 Initial population starts with random weights. Then in the selection phase, the top 0.1 of the population gets picked to the uniform crossover stage. In the crossover phase, parents are paired using roulette selection (the highest the score, the highest the probability of breeding). Finally, in the mutation phase, 0.01 of the weights of all offsprings are being mutated to the random values. Then we start again with a new population created fully by the newly bred offsprings. Above cycle is being repeated until convergence which happens usually around 25th generation and the average score of 22.
 

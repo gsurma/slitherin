@@ -11,7 +11,7 @@ class Constants:
     MODEL_DIRECTORY = "./tf_models/"
     NAVIGATION_BAR_HEIGHT = 30
     FPS = 10
-    PIXEL_SIZE = 30
+    PIXEL_SIZE = 25
     SCREEN_WIDTH = 300
     SCREEN_HEIGHT = 300
     SCREEN_DEPTH = 32
