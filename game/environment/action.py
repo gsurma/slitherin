@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
 
-from enum import Enum
 import math
 
 
-class Action(Enum):
+class Action():
     left = (-1, 0)
     up = (0, -1)
     right = (1, 0)

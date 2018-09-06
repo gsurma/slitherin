@@ -1,8 +1,5 @@
-from enum import Enum
-import numpy as np
 
-
-class Tile(Enum):
+class Tile():
     empty = " "
     snake = "x"
     fruit = "$"
