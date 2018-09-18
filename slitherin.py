@@ -41,7 +41,7 @@ def args():
 
 
 if __name__ == '__main__':
-    selected_game_model = solvers[0]#random.choice(solvers)
+    selected_game_model = random.choice(solvers)
     args = args()
     for game_model in game_models:
         if game_model.short_name in args and vars(args)[game_model.short_name]:
