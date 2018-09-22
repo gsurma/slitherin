@@ -23,10 +23,23 @@ class Environment:
         self.width = width
         self.height = height
         self.tiles = []
+        self.frames_to_remember = 4
         for y in range(0, self.height):
             self.tiles.append([])
             for x in range(0, self.width):
                 self.tiles[y].append(Tile.empty)
+
+    def full_step(self, action): #TODO: it should get already normalized action
+        terminal = not self.step(action)# or self.is_in_fruitless_cycle() # TODO: lets try without it
+        if self.eat_fruit_if_possible():
+            reward = self.snake_length # TODO: validate
+        elif terminal:
+            reward = -1
+        else:
+            reward = 0.001
+        #reward = self.snake_length if self.eat_fruit_if_possible() else 0
+        state = self.state()
+        return state, reward, terminal
 
     def step(self, action):
         if Action.is_reverse(self.snake_action, action):
@@ -50,7 +63,11 @@ class Environment:
             if len(self.snake) > self.reward():
                 last = self.snake.pop()
                 self.tiles[last.y][last.x] = Tile.empty
+            self._update_frames()
             return True
+
+    def state(self):
+        return self._frames()
 
     def reward(self):
         return self.snake_length
@@ -136,6 +153,20 @@ class Environment:
             for x in range(0, self.width):
                 environment_string += " " + self.tiles[y][x] + " "
         print environment_string
+
+    def _frame(self):
+        grayscale = [[Tile.grayscale(tile) for tile in row] for row in self.tiles]
+        return np.array(grayscale)
+
+    def _frames(self):
+        while len(self.frames) < self.frames_to_remember:
+            self.frames.append(self._frame())  # It should happen only for the first invocation
+        return self.frames
+
+    def _update_frames(self):
+        self.frames.append(self._frame())
+        while len(self.frames) > self.frames_to_remember:
+            self.frames.popleft()
 
     def is_in_fruitless_cycle(self):
         return self.snake_moves >= self._available_tiles_count()

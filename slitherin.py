@@ -12,6 +12,7 @@ from game.models.domain_specific.hamilton_ai_solver import HamiltonSolver
 from game.models.domain_specific.dnn_ai_solver import DNNSolver, DNNTrainer
 from game.models.domain_specific.dnn_monte_carlo_ai_solver import DNNMonteCarloSolver
 from game.models.general_purpose.dnn_genetic_evolution_ai_solver import DNNGeneticEvolutionSolver, DNNGeneticEvolutionTrainer
+from game.models.general_purpose.dqn_ai_solver import DQNSolver, DQNTrainer
 
 
 solvers = [RandomSolver(),
@@ -23,10 +24,12 @@ solvers = [RandomSolver(),
            HamiltonSolver(),
            DNNSolver(),
            DNNMonteCarloSolver(),
-           DNNGeneticEvolutionSolver()]
+           DNNGeneticEvolutionSolver(),
+           DQNSolver()]
 
 trainers = [DNNTrainer(),
-            DNNGeneticEvolutionTrainer()]
+            DNNGeneticEvolutionTrainer(),
+            DQNTrainer()]
 
 game_models = solvers + trainers
 
