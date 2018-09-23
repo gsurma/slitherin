@@ -7,6 +7,8 @@
 
 AI research environment for the game of Snake written in Python 2.7. Part of the [OpenAI - Request For Research 2.0](https://blog.openai.com/requests-for-research-2/).
 
+Check out corresponding Medium article: [Slitherin - solving the classic game of Snake🐍 with AI🤖 (Part 1: Domain Specific Solvers)](https://medium.com/@gsurma/slitherin-solving-the-classic-game-of-snake-with-ai-part-1-domain-specific-solvers-d1f5a5ccd635).
+
 Table of Contents
 =================
 
