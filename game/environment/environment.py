@@ -24,6 +24,7 @@ class Environment:
         self.height = height
         self.tiles = []
         self.frames_to_remember = 4
+        self.frames = []
         for y in range(0, self.height):
             self.tiles.append([])
             for x in range(0, self.width):
@@ -32,18 +33,16 @@ class Environment:
     def full_step(self, action): #TODO: it should get already normalized action
         terminal = not self.step(action)# or self.is_in_fruitless_cycle() # TODO: lets try without it
         if self.eat_fruit_if_possible():
-            reward = self.snake_length # TODO: validate
-        elif terminal:
-            reward = -1
+            reward = 1
         else:
-            reward = 0.001
+            reward = 0
         #reward = self.snake_length if self.eat_fruit_if_possible() else 0
         state = self.state()
         return state, reward, terminal
 
     def step(self, action):
         if Action.is_reverse(self.snake_action, action):
-            # print "Forbidden reverse action attempt!"
+            print "Forbidden reverse action attempt!"
             return
         self.snake_action = action
         head = self.snake[0]
@@ -51,10 +50,10 @@ class Environment:
         new = Point(x=(head.x + x),
                     y=(head.y + y))
         if new in self.snake:
-            # print "Hit snake"
+            print "Hit snake"
             return False
         elif new in self.wall:
-            # print "Hit wall"
+            print "Hit wall"
             return False
         else:
             self.snake_moves += 1
@@ -67,7 +66,7 @@ class Environment:
             return True
 
     def state(self):
-        return self._frames()
+        return np.asarray(self._frames())
 
     def reward(self):
         return self.snake_length
@@ -166,7 +165,7 @@ class Environment:
     def _update_frames(self):
         self.frames.append(self._frame())
         while len(self.frames) > self.frames_to_remember:
-            self.frames.popleft()
+            self.frames.pop(0)
 
     def is_in_fruitless_cycle(self):
         return self.snake_moves >= self._available_tiles_count()
