@@ -1,5 +1,5 @@
 from game.models.base_game_model import BaseGameModel
-from tf_models.dqn_model import DeepQNetModel
+from tf_models.ddqn_model import DDQNModel
 from game.helpers.constants import Constants
 from game.environment.action import Action
 import random
@@ -21,16 +21,17 @@ EXPLORATION_TEST = 0.01
 EXPLORATION_STEPS = 850000
 EXPLORATION_DECAY = (EXPLORATION_MAX-EXPLORATION_MIN)/EXPLORATION_STEPS
 
-class BaseDQNGameModel(BaseGameModel):
 
-    model_dir_path = Constants.MODEL_DIRECTORY + "dqn2/"
-    model_input_shape = (4, 12, 12)
+class BaseDDQNGameModel(BaseGameModel):
+
+    model_dir_path = Constants.MODEL_DIRECTORY + "ddqn/"
+    model_input_shape = (Constants.FRAMES_TO_REMEMBER, Constants.ENV_WIDTH, Constants.ENV_HEIGHT)
 
     def __init__(self, long_name, short_name, abbreviation):
         BaseGameModel.__init__(self, long_name, short_name, abbreviation)
         self.model_path = self.model_dir_path + Constants.DQN_MODEL_NAME
         self.action_space = 3
-        self.ddqn = DeepQNetModel(self.model_input_shape, self.action_space).model
+        self.ddqn = DDQNModel(self.model_input_shape, self.action_space).model
         self._load_model()
 
     def move(self, environment):
@@ -44,43 +45,31 @@ class BaseDQNGameModel(BaseGameModel):
             self.ddqn.load_weights(self.model_path)
 
 
-class DQNSolver(BaseDQNGameModel):
+class DDQNSolver(BaseDDQNGameModel):
 
     def __init__(self):
-        BaseDQNGameModel.__init__(self, "Deep Q Net", "deep_q_net", "dqn")
+        BaseDDQNGameModel.__init__(self, "Double DQN", "double_dqn", "ddqn")
 
     def move(self, environment):
-        BaseDQNGameModel.move(self, environment)
+        BaseDDQNGameModel.move(self, environment)
         state = environment.state()
-        q = self.ddqn.predict(state)
-        print ""
-        print q
-        print Action.description(environment.snake_action)
-        environment.print_to_console()
-        action_index = np.argmax(q[0])
+        action_index = np.argmax(self.ddqn.predict(state)[0])
         return Action.normalized_action(environment.snake_action, Action.possible()[action_index])
 
 
-class DQNTrainer(BaseDQNGameModel):
+class DDQNTrainer(BaseDDQNGameModel):
 
     def __init__(self):
-        BaseDQNGameModel.__init__(self, "Deep Q Net", "deep_q_net_trainer_lr0.00025", "dqnt")
-        self.ddqn_target = DeepQNetModel(self.model_input_shape, self.action_space).model
+        BaseDDQNGameModel.__init__(self, "Double DQN", "double_dqn_trainer", "ddqnt")
+        self.ddqn_target = DDQNModel(self.model_input_shape, self.action_space).model
         self.memory = []
         self.epsilon = EXPLORATION_MAX
 
-
     def move(self, environment):
-        BaseDQNGameModel.move(self, environment)
-        self._dqn()
+        BaseDDQNGameModel.move(self, environment)
+        self._ddqn()
 
-    def _predict_move(self, state):
-        if np.random.rand() < self.epsilon or len(self.memory) < REPLAY_START_SIZE:
-            return random.randrange(self.action_space)
-        q_values = self.ddqn.predict(np.expand_dims(np.asarray(state).astype(np.float64), axis=0), batch_size=1)
-        return np.argmax(q_values[0])
-
-    def _dqn(self, total_step_limit=10000000, total_run_limit=None, clip=True):
+    def _ddqn(self, total_step_limit=10000000, total_run_limit=None, clip=True):
         run = 0
         total_step = 0
         scores = []
@@ -118,23 +107,17 @@ class DQNTrainer(BaseDQNGameModel):
                     if len(scores) % 10 == 0 and len(scores) >= 10:
                         self.log_score(mean(scores))
                         scores = []
-                    print ""
                     print "Score: " + str(score)
                     print "Step: " + str(step)
                     print "Run: " + str(run)
-
-                    # print current_state.shape
-                    # for x in xrange(0, len(current_state)):
-                    #     import matplotlib
-                    #     matplotlib.use("Agg")
-                    #     import matplotlib.pyplot as plt
-                    #
-                    #     plt.imshow(current_state[x])
-                    #     plt.savefig("./x" + str(x), bbox_inches="tight")
-                    #     plt.close()
-                    # exit()
-
+                    print ""
                     break
+
+    def _predict_move(self, state):
+        if np.random.rand() < self.epsilon or len(self.memory) < REPLAY_START_SIZE:
+            return random.randrange(self.action_space)
+        q_values = self.ddqn.predict(np.expand_dims(np.asarray(state).astype(np.float64), axis=0), batch_size=1)
+        return np.argmax(q_values[0])
 
     def _remember(self, current_state, action, reward, next_state, terminal):
         self.memory.append({"current_state": np.asarray(current_state),
@@ -152,9 +135,8 @@ class DQNTrainer(BaseDQNGameModel):
         if total_step % TRAINING_FREQUENCY == 0:
             loss, accuracy, average_max_q = self._train()
             print "Loss: " + str(loss)
-            # self.logger.add_loss(loss)
-            # self.logger.add_accuracy(accuracy)
-            # self.logger.add_q(average_max_q)
+            print "Accuracy: " + str(accuracy)
+            print "Q: " + str(average_max_q)
 
         self._update_epsilon()
 
