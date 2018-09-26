@@ -134,7 +134,7 @@ class DNNGeneticEvolutionTrainer(BaseGameModel):
 
     def _gameplay_for_chromosome(self, chromosome):
         self.model.set_weights(chromosome)
-        environment = self._prepare_training_environment()
+        environment = self.prepare_training_environment()
         while True:
             predicted_action = self._predict(environment, self.model)
             environment.eat_fruit_if_possible()

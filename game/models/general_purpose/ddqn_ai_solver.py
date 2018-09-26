@@ -3,17 +3,20 @@ from tf_models.ddqn_model import DDQNModel
 from game.helpers.constants import Constants
 from game.environment.action import Action
 import random
+import shutil
 import numpy as np
 import os
 from statistics import mean
 
 GAMMA = 0.99
-MEMORY_SIZE = 900000
+MEMORY_SIZE = 10000
 BATCH_SIZE = 32
-TRAINING_FREQUENCY = 4
-TARGET_NETWORK_UPDATE_FREQUENCY = TRAINING_FREQUENCY*10000
-MODEL_PERSISTENCE_UPDATE_FREQUENCY = 10000
 REPLAY_START_SIZE = 50000
+TRAINING_FREQUENCY = 4
+TARGET_NETWORK_UPDATE_FREQUENCY = TRAINING_FREQUENCY*1000
+MODEL_PERSISTENCE_UPDATE_FREQUENCY = 10000
+SCORE_LOGGING_FREQUENCY = 100
+LEARNING_LOGGING_FREQUENCY = 10000
 
 EXPLORATION_MAX = 1.0
 EXPLORATION_MIN = 0.1
@@ -29,8 +32,14 @@ class BaseDDQNGameModel(BaseGameModel):
 
     def __init__(self, long_name, short_name, abbreviation):
         BaseGameModel.__init__(self, long_name, short_name, abbreviation)
+
         self.model_path = self.model_dir_path + Constants.DQN_MODEL_NAME
-        self.action_space = 3
+
+        if os.path.exists(os.path.dirname(self.model_path)):
+            shutil.rmtree(os.path.dirname(self.model_path), ignore_errors=True)
+        os.makedirs(os.path.dirname(self.model_path))
+
+        self.action_space = len(Action.possible())
         self.ddqn = DDQNModel(self.model_input_shape, self.action_space).model
         self._load_model()
 
@@ -52,9 +61,14 @@ class DDQNSolver(BaseDDQNGameModel):
 
     def move(self, environment):
         BaseDDQNGameModel.move(self, environment)
-        state = environment.state()
-        action_index = np.argmax(self.ddqn.predict(state)[0])
-        return Action.normalized_action(environment.snake_action, Action.possible()[action_index])
+
+        if np.random.rand() < 0.01:
+            action_vector = random.randrange(self.action_space)
+        else:
+            state = environment.state()
+            q_values = self.ddqn.predict(np.expand_dims(np.asarray(state).astype(np.float64), axis=0), batch_size=1)
+            action_vector = Action.action_from_vector(np.argmax(q_values[0]))
+        return Action.normalized_action(environment.snake_action, action_vector)
 
 
 class DDQNTrainer(BaseDDQNGameModel):
@@ -79,7 +93,7 @@ class DDQNTrainer(BaseDDQNGameModel):
                 exit(0)
 
             run += 1
-            env = self._prepare_training_environment()
+            env = self.prepare_training_environment()
             current_state = env.state()
             step = 0
             score = env.reward()
@@ -104,13 +118,11 @@ class DDQNTrainer(BaseDDQNGameModel):
 
                 if terminal:
                     scores.append(score)
-                    if len(scores) % 10 == 0 and len(scores) >= 10:
+                    if len(scores) % SCORE_LOGGING_FREQUENCY == 0:
                         self.log_score(mean(scores))
+                        print('{{"metric": "score", "value": {}}}'.format(mean(scores)))
+                        print('{{"metric": "run", "value": {}}}'.format(run))
                         scores = []
-                    print "Score: " + str(score)
-                    print "Step: " + str(step)
-                    print "Run: " + str(run)
-                    print ""
                     break
 
     def _predict_move(self, state):
@@ -129,14 +141,16 @@ class DDQNTrainer(BaseDDQNGameModel):
             self.memory.pop(0)
 
     def _step_update(self, total_step):
-        if len(self.memory) < REPLAY_START_SIZE:
+        if total_step < REPLAY_START_SIZE:
             return
 
         if total_step % TRAINING_FREQUENCY == 0:
             loss, accuracy, average_max_q = self._train()
-            print "Loss: " + str(loss)
-            print "Accuracy: " + str(accuracy)
-            print "Q: " + str(average_max_q)
+            if total_step % LEARNING_LOGGING_FREQUENCY == 0:
+                #TODO: batch and average these values
+                print('{{"metric": "loss", "value": {}}}'.format(loss))
+                print('{{"metric": "accuracy", "value": {}}}'.format(accuracy))
+                print('{{"metric": "q", "value": {}}}'.format(average_max_q))
 
         self._update_epsilon()
 

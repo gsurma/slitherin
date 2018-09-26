@@ -32,6 +32,8 @@ class Environment:
     def full_step(self, action):
         terminal = not self.step(action)
         reward = 1 if self.eat_fruit_if_possible() else 0
+        if terminal:
+            reward = -1
         state = self.state()
         return state, reward, terminal
 

@@ -61,7 +61,7 @@ class DNNTrainer(BaseDNNGameModel):
         death_moves = 0
 
         for i in range(0, testing_runs):
-            environment = self._prepare_training_environment(10, 10)
+            environment = self.prepare_training_environment(10, 10)
             while True:
                 predicted_action = self._predict(environment, self.model)
                 pre_distance_from_fruit = environment.distance_from_fruit()
@@ -87,7 +87,7 @@ class DNNTrainer(BaseDNNGameModel):
         print "Death moves: " + str(death_moves)
 
     def _training_observations(self, training_runs):
-        new_environment = self._prepare_training_environment(10, 10)
+        new_environment = self.prepare_training_environment(10, 10)
         observations = []
         for run_index in range(0, training_runs):
             environment = copy.deepcopy(new_environment)

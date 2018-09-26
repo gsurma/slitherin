@@ -1,6 +1,8 @@
 import csv
 import os
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 from game.helpers.node import Node
@@ -93,7 +95,7 @@ class BaseGameModel:
         best_prediction_index = np.argmax(np.array(predictions))
         return actions[best_prediction_index]
 
-    def _prepare_training_environment(self, horizontal_pixels=Constants.ENV_WIDTH, vertical_pixels=Constants.ENV_HEIGHT):
+    def prepare_training_environment(self, horizontal_pixels=Constants.ENV_WIDTH, vertical_pixels=Constants.ENV_HEIGHT):
         environment = Environment(width=horizontal_pixels,
                            height=vertical_pixels)
         environment.set_wall()

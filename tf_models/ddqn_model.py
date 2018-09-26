@@ -24,12 +24,6 @@ class DDQNModel:
         self.model.add(Flatten())
         self.model.add(Dense(256, activation="relu"))
         self.model.add(Dense(action_space))
-        self.model.compile(loss="mean_squared_error",
-                           optimizer=RMSprop(lr=0.00025,
-                                             rho=0.95,
-                                             epsilon=0.01),
-                           metrics=["accuracy"])
-        #self.model.compile(RMSprop(), 'MSE', metrics=["accuracy"])
-        self.model.summary()
+        self.model.compile(RMSprop(), "MSE", metrics=["accuracy"])
 
 
