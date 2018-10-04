@@ -21,8 +21,8 @@ class DeepNeuralNetModel:
         network = fully_connected(network, 1, activation='linear')
         network = regression(network, optimizer='adam', loss='mean_square')
         self.model = tflearn.DNN(network)
-        if os.path.isfile(self.dnn_model_file_name+".index"):
-            self.model.load(self.dnn_model_file_name)
+        # if os.path.isfile(self.dnn_model_file_name+".index"):
+        #     self.model.load(self.dnn_model_file_name)
 
     def save(self):
         self.model.save(self.dnn_model_file_name)
