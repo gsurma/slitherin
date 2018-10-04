@@ -31,7 +31,7 @@ class Action():
 
     @staticmethod
     def action_from_vector(vector):
-        return Action.all()[vector+1]
+        return Action.possible()[vector]
 
     @staticmethod # So that turning left is -1, forward is 0 and turning right is 1
     def vector(start, end):

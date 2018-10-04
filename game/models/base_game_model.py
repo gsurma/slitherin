@@ -1,6 +1,8 @@
 import csv
 import os
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 from game.helpers.node import Node
@@ -46,8 +48,8 @@ class BaseGameModel:
         with scores_file:
             reader = csv.reader(scores_file)
             for row in reader:
-                scores.append(row[-1])
-        scores = list(map(lambda x: int(x), scores))
+                scores.append(float(row[-1]))
+        scores = list(map(lambda x: x, scores))
         minimum = min(scores)
         average = round(sum(scores)/float(len(scores)), 1)
         maximum = max(scores)
@@ -63,8 +65,8 @@ class BaseGameModel:
             reader = csv.reader(scores)
             data = list(reader)
             for i in range(0, len(data)):
-                x.append(int(i))
-                y.append(int(data[i][0]))
+                x.append(float(i))
+                y.append(float(data[i][0]))
 
         plt.subplots()
         plt.plot(x, y, label="score per run")
@@ -93,7 +95,7 @@ class BaseGameModel:
         best_prediction_index = np.argmax(np.array(predictions))
         return actions[best_prediction_index]
 
-    def _prepare_training_environment(self, horizontal_pixels=Constants.ENV_WIDTH, vertical_pixels=Constants.ENV_HEIGHT):
+    def prepare_training_environment(self, horizontal_pixels=Constants.ENV_WIDTH, vertical_pixels=Constants.ENV_HEIGHT):
         environment = Environment(width=horizontal_pixels,
                            height=vertical_pixels)
         environment.set_wall()

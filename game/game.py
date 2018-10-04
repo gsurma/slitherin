@@ -20,6 +20,7 @@ class Game:
 
     def __init__(self, game_model, fps, pixel_size, screen_width, screen_height, navigation_bar_height):
         self.model = game_model
+
         self.stats = self.model.stats()
         self.fps = fps
         self.pixel_size = pixel_size

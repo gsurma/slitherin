@@ -1,6 +1,5 @@
 import argparse
 import random
-from game.game import Game
 from game.helpers.constants import Constants
 from game.models.general_purpose.human_solver import HumanSolver
 from game.models.general_purpose.random_ai_solver import RandomSolver
@@ -11,7 +10,8 @@ from game.models.domain_specific.longest_path_ai_solver import LongestPathSolver
 from game.models.domain_specific.hamilton_ai_solver import HamiltonSolver
 from game.models.domain_specific.dnn_ai_solver import DNNSolver, DNNTrainer
 from game.models.domain_specific.dnn_monte_carlo_ai_solver import DNNMonteCarloSolver
-from game.models.general_purpose.dnn_genetic_evolution_ai_solver import DNNGeneticEvolutionSolver, DNNGeneticEvolutionTrainer
+from game.models.domain_specific.dnn_genetic_evolution_ai_solver import DNNGeneticEvolutionSolver, DNNGeneticEvolutionTrainer
+from game.models.general_purpose.ddqn_ai_solver import DDQNSolver, DDQNTrainer
 
 
 solvers = [RandomSolver(),
@@ -23,10 +23,12 @@ solvers = [RandomSolver(),
            HamiltonSolver(),
            DNNSolver(),
            DNNMonteCarloSolver(),
-           DNNGeneticEvolutionSolver()]
+           DNNGeneticEvolutionSolver(),
+           DDQNSolver()]
 
 trainers = [DNNTrainer(),
-            DNNGeneticEvolutionTrainer()]
+            DNNGeneticEvolutionTrainer(),
+            DDQNTrainer()]
 
 game_models = solvers + trainers
 
@@ -46,9 +48,13 @@ if __name__ == '__main__':
     for game_model in game_models:
         if game_model.short_name in args and vars(args)[game_model.short_name]:
             selected_game_model = game_model
-    Game(game_model=selected_game_model,
-         fps=Constants.FPS,
-         pixel_size=Constants.PIXEL_SIZE,
-         screen_width=Constants.SCREEN_WIDTH,
-         screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
-         navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)
+    if selected_game_model in trainers:
+        selected_game_model.move(selected_game_model.prepare_training_environment())
+    else:
+        from game.game import Game
+        Game(game_model=selected_game_model,
+            fps=Constants.FPS,
+            pixel_size=Constants.PIXEL_SIZE,
+            screen_width=Constants.SCREEN_WIDTH,
+            screen_height=Constants.SCREEN_HEIGHT+Constants.NAVIGATION_BAR_HEIGHT,
+            navigation_bar_height=Constants.NAVIGATION_BAR_HEIGHT)

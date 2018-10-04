@@ -1,5 +1,6 @@
-numpy==1.15.0
-pygame==1.9.3
-tflearn==0.3.2
+numpy
+keras
+pygame
+tflearn
 tensorflow
 matplotlib

@@ -23,14 +23,23 @@ class Environment:
         self.width = width
         self.height = height
         self.tiles = []
+        self.frames = []
         for y in range(0, self.height):
             self.tiles.append([])
             for x in range(0, self.width):
                 self.tiles[y].append(Tile.empty)
 
+    def full_step(self, action):
+        terminal = not self.step(action)
+        reward = 1 if self.eat_fruit_if_possible() else 0
+        if terminal:
+            reward = -1
+        state = self.state()
+        return state, reward, terminal
+
     def step(self, action):
         if Action.is_reverse(self.snake_action, action):
-            # print "Forbidden reverse action attempt!"
+            #print "Forbidden reverse action attempt!"
             return
         self.snake_action = action
         head = self.snake[0]
@@ -38,10 +47,10 @@ class Environment:
         new = Point(x=(head.x + x),
                     y=(head.y + y))
         if new in self.snake:
-            # print "Hit snake"
+            #print "Hit snake"
             return False
         elif new in self.wall:
-            # print "Hit wall"
+            #print "Hit wall"
             return False
         else:
             self.snake_moves += 1
@@ -50,7 +59,11 @@ class Environment:
             if len(self.snake) > self.reward():
                 last = self.snake.pop()
                 self.tiles[last.y][last.x] = Tile.empty
+            self._update_frames()
             return True
+
+    def state(self):
+        return np.asarray(self._frames())
 
     def reward(self):
         return self.snake_length
@@ -136,6 +149,20 @@ class Environment:
             for x in range(0, self.width):
                 environment_string += " " + self.tiles[y][x] + " "
         print environment_string
+
+    def _frame(self):
+        grayscale = [[Tile.grayscale(tile) for tile in row] for row in self.tiles]
+        return np.array(grayscale)
+
+    def _frames(self):
+        while len(self.frames) < Constants.FRAMES_TO_REMEMBER:
+            self.frames.append(self._frame())
+        return self.frames
+
+    def _update_frames(self):
+        self.frames.append(self._frame())
+        while len(self.frames) > Constants.FRAMES_TO_REMEMBER:
+            self.frames.pop(0)
 
     def is_in_fruitless_cycle(self):
         return self.snake_moves >= self._available_tiles_count()
