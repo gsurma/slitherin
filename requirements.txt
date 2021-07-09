@@ -1,6 +1,7 @@
-numpy
-keras
-pygame
-tflearn
-tensorflow
-matplotlib
+numpy==1.14.5
+Keras==2.2.5
+pygame==2.0.1
+tflearn==0.3.2
+# You probably need to maunually install tensorflow 1.
+tensorflow==1.10.0
+matplotlib==2.2.5
